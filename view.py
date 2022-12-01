@@ -28,30 +28,7 @@ class View(ttk.Frame):
 
         # SECOND TAB
 
-        # create canvas
-
-        self.canvas = tk.Canvas(self.main_tab2)
-        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-
-        # add a scrollbar to canvas
-
-        self.scrollbar = ttk.Scrollbar(self.main_tab2, orient=tk.VERTICAL, command=self.canvas.yview)
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-        # configure the canvas
-
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-
-        # create another frame inside the canvas
-
-        self.tab2 = ttk.Frame(self.canvas)
-
-        # add frame to canvas
-
-        self.canvas.create_window((0, 0), window=self.tab2, anchor="nw")
-
-        self.second_tab()
+        self.second_tab_scroll_module()
 
         self.tab1.pack(fill='both', expand=1)
         self.main_tab2.pack(fill='both', expand=1)
@@ -77,6 +54,30 @@ class View(ttk.Frame):
             command=None)
 
         self.connect_button.grid(row=10, column=16, padx=15, pady=15, sticky="e")
+
+    def second_tab_scroll_module(self):
+        self.canvas = tk.Canvas(self.main_tab2)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+        # add a scrollbar to canvas
+
+        self.scrollbar = ttk.Scrollbar(self.main_tab2, orient=tk.VERTICAL, command=self.canvas.yview)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # configure the canvas
+
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        # create another frame inside the canvas
+
+        self.tab2 = ttk.Frame(self.canvas)
+
+        # add frame to canvas
+
+        self.canvas.create_window((0, 0), window=self.tab2, anchor="nw")
+
+        self.second_tab()
 
     def second_tab(self):
 
@@ -142,11 +143,10 @@ class View(ttk.Frame):
         self.frequency_entry.grid(row=5, column=1, columnspan=3,sticky=tk.W)
 
         self.set_freq('100')
-        points = int(self.get_freq() * (self.get_end() - self.get_start()))
+        self.num_points = self.get_num_points()
 
-        x = np.linspace(self.get_start(), self.get_end(), points)
-        y = np.zeros(points)
-        
+        x = np.linspace(self.get_start(), self.get_end(), self.num_points)
+        y = np.zeros(self.num_points)
 
         self.plotting(self.eeg_plot, "EEG Readings", 'Time (seconds)', 'Units', x, y)
 
@@ -166,8 +166,33 @@ class View(ttk.Frame):
 
         self.record_button.grid(row=8, column=8, padx=15, pady=15, sticky="e")
 
+    def get_num_points(self):
+        return int(self.get_freq() * (self.get_end() - self.get_start()))
+    
     def plotting(self, frame, title, x, y, x_data, y_data):
 
+        # create a figure
+        figure = Figure(figsize=(6, 4), dpi=100)
+
+        # create FigureCanvasTkAgg object
+        figure_canvas = FigureCanvasTkAgg(figure, frame)
+
+        # create the toolbar
+        NavigationToolbar2Tk(figure_canvas, frame)
+
+        # create axes
+        axes = figure.add_subplot(111)
+        axes.plot(x_data, y_data)
+        axes.set_title(title)
+        axes.set_xlabel(x)
+        axes.set_ylabel(y)
+
+        figure_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+    def change_plot(self, frame, title, x, y, x_data, y_data):
+
+        for widget in frame.winfo_children():
+            widget.destroy()
 
         # create a figure
         figure = Figure(figsize=(6, 4), dpi=100)
@@ -217,3 +242,18 @@ class View(ttk.Frame):
     def record_button_clicked(self):
         if self.controller:
             self.controller.record(self.get_start(), self.get_end())
+
+            if(self.eeg.get() == 1):
+                self.num_points = self.get_num_points()
+                x = np.linspace(self.get_start(), self.get_end(), self.num_points)
+                y = np.zeros(self.num_points)
+                
+                self.change_plot(self.eeg_plot, "EEG Readings", 'Time (seconds)', 'Units', x, y)
+
+            if(self.ec.get() == 1):
+                self.num_points = self.get_num_points()
+                x = np.linspace(self.get_start(), self.get_end(), self.num_points)
+                y = np.zeros(self.num_points)
+                
+                self.change_plot(self.ec_plot, "EEG Readings", 'Time (seconds)', 'Units', x, y)
+            
