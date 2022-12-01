@@ -14,3 +14,6 @@ pip install -r requirements.txt
 
 To start the gui run: <br>
 py index.py
+
+## Recording Page:
+![](assets/graphs.JPG)
