@@ -1,18 +1,14 @@
-Python GUI for the Multi-Modal-Neural-Interface
+## Python GUI for the Multi-Modal-Neural-Interface
 
-<br>
 Requirements:
-    <br>
-    python version 3 and above
-    <br>
-    pip
 
-Install the required python dependencies: <br>
+- python version 3 and above
+- pip
+
+### Install the required python dependencies
 pip install -r requirements.txt
 
-<br>
-
-To start the gui run: <br>
+### To start the gui run:
 py index.py
 
 ## Recording Page:
