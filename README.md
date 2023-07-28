@@ -1,4 +1,4 @@
-## Python GUI for the Multi-Modal-Neural-Interface
+## Python GUI for the Multi-Modal-Neural-Interface (Outdated)
 
 Requirements:
 
